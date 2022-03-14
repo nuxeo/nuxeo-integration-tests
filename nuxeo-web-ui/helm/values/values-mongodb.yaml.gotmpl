@@ -1,0 +1,30 @@
+image:
+  tag: "4.4.1"
+usePassword: false
+serviceAccount:
+  create: false
+resources:
+  requests:
+    cpu: "1"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+labels:
+  resource: statefulset
+  team: platform
+  usage: ftests
+podLabels:
+  resource: pod
+  team: platform
+  usage: ftests
+persistence:
+  enabled: false
+useStatefulSet: false
+tolerations:
+  - key: team
+    operator: Equal
+    value: platform
+    effect: NoSchedule
+nodeSelector:
+  team: platform

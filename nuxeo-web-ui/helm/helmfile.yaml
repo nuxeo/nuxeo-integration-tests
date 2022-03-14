@@ -1,0 +1,37 @@
+repositories:
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
+- name: elastic
+  url: https://helm.elastic.co/
+- name: nuxeo
+  url: https://chartmuseum.platform.dev.nuxeo.com/
+
+helmDefaults:
+  timeout: 300
+  wait: true
+
+releases:
+- name: nuxeo
+  chart: nuxeo/nuxeo
+  version: 3.0.9
+  namespace: {{ requiredEnv "NAMESPACE" }}
+  values:
+  - values/values-nuxeo.yaml.gotmpl
+- name: mongodb
+  chart: bitnami/mongodb
+  version: 7.14.2
+  namespace: {{ requiredEnv "NAMESPACE" }}
+  values:
+  - values/values-mongodb.yaml.gotmpl
+- name: elasticsearch
+  chart: elastic/elasticsearch
+  version: 7.9.2
+  namespace: {{ requiredEnv "NAMESPACE" }}
+  values:
+  - values/values-elasticsearch.yaml.gotmpl
+- name: kafka
+  chart: bitnami/kafka
+  version: 11.8.8
+  namespace: {{ requiredEnv "NAMESPACE" }}
+  values:
+  - values/values-kafka.yaml.gotmpl

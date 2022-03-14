@@ -1,0 +1,40 @@
+{{- $localDomain := printf "%s.svc.cluster.local" (requiredEnv "NAMESPACE") -}}
+## See https://github.com/nuxeo/nuxeo-helm-chart/blob/master/nuxeo/values.yaml
+image:
+  repository: {{ printf "%s/nuxeo/nuxeo-web-ui-ftests" (requiredEnv "DOCKER_REGISTRY") }}
+  tag: {{ requiredEnv "TEST_IMAGE_VERSION" }}
+  pullSecrets:
+  - name: kubernetes-docker-cfg
+  pullPolicy: Always
+podLabels:
+  team: platform
+  resource: pod
+  usage: ftests
+service:
+  labels:
+    team: platform
+    resource: service
+    usage: ftests
+resources:
+  requests:
+    cpu: 1
+    memory: 2Gi
+  limits:
+    cpu: 2
+    memory: 4Gi
+mongodb:
+  enabled: true
+  host: {{ printf "mongodb.%s" $localDomain }}
+elasticsearch:
+  enabled: true
+  host: {{ printf "elasticsearch-master.%s" $localDomain }}
+kafka:
+  enabled: true
+  host: {{ printf "kafka.%s" $localDomain }}
+nodeSelector:
+  team: platform
+tolerations:
+- effect: NoSchedule
+  key: team
+  operator: Equal
+  value: platform
