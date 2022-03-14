@@ -1,0 +1,45 @@
+# (C) Copyright 2022 Nuxeo (http://nuxeo.com/) and others.
+#
+# Contributors:
+#     Thomas Fowley
+apiVersion: skaffold/v2beta17
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.TEST_IMAGE_VERSION}}"
+  artifacts:
+    - image: "$DOCKER_REGISTRY/nuxeo/nuxeo-web-ui-ftests"
+      context: nuxeo-web-ui/docker
+      kaniko:
+        useNewRun: true
+        singleSnapshot: true
+        snapshotMode: "time"
+        dockerfile: Dockerfile
+        buildArgs:
+          BASE_IMAGE: "{{.PRIVATE_DOCKER_REGISTRY}}/nuxeo/nuxeo:{{.NUXEO_IMAGE_VERSION}}"
+          BUILD_TAG: "{{.BUILD_TAG}}"
+          SCM_REF: "{{.SCM_REF}}"
+          VERSION: "{{.VERSION}}"
+          CLID: "{{.CLID}}"
+          WEB_UI_CONNECT_URL: "{{.WEB_UI_CONNECT_URL}}"
+          NUXEO_CONNECT_URL: "{{.NUXEO_CONNECT_URL}}"
+          NUXEO_WEB_UI_VERSION: "{{.NUXEO_WEB_UI_VERSION}}"
+        cache:
+          repo: "${DOCKER_REGISTRY}/nuxeo/server-build-web-ui-release/cache"
+  cluster:
+    namespace: $CURRENT_NAMESPACE
+    dockerConfig:
+      secretName: jenkins-docker-cfg
+    resources:
+      requests:
+        cpu: "1"
+        memory: "3Gi"
+      limits:
+        cpu: "2"
+        memory: "6Gi"
+    tolerations:
+      - key: team
+        operator: "Equal"
+        value: platform
+        effect: "NoSchedule"
