@@ -131,6 +131,14 @@ String getNodeVersion() {
   }
 }
 
+String getNamespace(serverBuild, webUiBuild) {
+  container("${DEFAULT_CONTAINER}") {
+    def serverVersion = serverBuild ? "build" : "release"
+    def webUiVersion = webUiBuild ? "build" : "release"
+    return "${CURRENT_NAMESPACE}-server-${serverVersion}-web-ui-${webUiVersion}-${NUXEO_MAJOR_VERSION.toLowerCase()}"
+  }
+}
+
 void archiveHelmTemplates() {
   archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/**/*.yaml'
 }
@@ -222,7 +230,7 @@ pipeline {
             Deploy Docker Image
             ----------------------------------------"""
             // Kubernetes namespace, requires lower case alphanumeric characters
-            def testNamespace = "${CURRENT_NAMESPACE}-server-build-web-ui-release-${NUXEO_MAJOR_VERSION.toLowerCase()}"
+            def testNamespace = getNamespace(params.SERVER_BUILD, params.WEB_UI_BUILD)
 
             // Create namespace
             echo 'Create test namespace'
@@ -310,14 +318,15 @@ pipeline {
     success {
       script {
         if (env.DRY_RUN != 'true'
-          && !hudson.model.Result.SUCCESS.toString().equals(currentBuild.getPreviousBuild()?.getResult())){
+          && !hudson.model.Result.SUCCESS.toString().equals(currentBuild.getPreviousBuild()?.getResult())) {
           slackSend(channel: "${SLACK_CHANNEL}", color: 'good', message: "Nuxeo-Integration-Tests: All tests passed for Nuxeo: ${NUXEO_IMAGE_VERSION} & Web UI: ${NUXEO_WEB_UI_VERSION}. #${BUILD_NUMBER}: ${BUILD_URL}")
+        }
       }
     }
     unsuccessful {
       script {
         if (env.DRY_RUN != 'true'
-          && !hudson.model.Result.SUCCESS.toString().equals(currentBuild.getPreviousBuild()?.getResult())){
+          && !hudson.model.Result.SUCCESS.toString().equals(currentBuild.getPreviousBuild()?.getResult())) {
           slackSend(channel: "${SLACK_CHANNEL}", color: 'danger', message: "Nuxeo-Integration-Tests: Tests failing for Nuxeo: ${NUXEO_IMAGE_VERSION} & Web UI: ${NUXEO_WEB_UI_VERSION}. #${BUILD_NUMBER}: ${BUILD_URL}")
         }
       }
