@@ -20,7 +20,7 @@ NUXEO_MAJOR_VERSION = '2021'
 DEFAULT_CONTAINER = 'ftests'
 SLACK_CHANNEL = 'platform-notifs'
 NUXEO_WEB_UI_CLONE = 'nuxeo-web-ui-clone'
-WEB_UI_BRANCH = 'maintenance-3.0.x'
+WEB_UI_BRANCH = params.WEB_UI_BRANCH
 TEST_ENVIRONMENT = 'default'
 TEST_HELM_RELEASE = 'nuxeo'
 
