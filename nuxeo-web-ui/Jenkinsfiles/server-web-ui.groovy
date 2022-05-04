@@ -73,17 +73,6 @@ void helmfileDestroy(namespace, environment) {
   }
 }
 
-void setGitHubBuildStatus(String context, String message, String state) {
-  if (env.DRY_RUN != "true") {
-    step([
-      $class            : 'GitHubCommitStatusSetter',
-      reposSource       : [$class: 'ManuallyEnteredRepositorySource', url: repositoryUrl],
-      contextSource     : [$class: 'ManuallyEnteredCommitContextSource', context: context],
-      statusResultSource: [$class: 'ConditionalStatusResultSource', results: [[$class: 'AnyBuildResult', message: message, state: state]]],
-    ])
-  }
-}
-
 def getNuxeoVersion(isBuild) {
   return isBuild ? "${NUXEO_MAJOR_VERSION}.x" : NUXEO_MAJOR_VERSION
 }
@@ -178,7 +167,6 @@ pipeline {
     }
    stage('Build Docker Image') {
      steps {
-       setGitHubBuildStatus('docker/build', 'Build Docker image', 'PENDING')
        container("${DEFAULT_CONTAINER}") {
          echo """
          ------------------------------------------
@@ -211,18 +199,9 @@ pipeline {
          }
        }
      }
-     post {
-       success {
-         setGitHubBuildStatus('docker/build', 'Build Docker image', 'SUCCESS')
-       }
-       unsuccessful {
-         setGitHubBuildStatus('docker/build', 'Build Docker image', 'FAILURE')
-       }
-     }
    }
     stage('Deploy/Test Docker Image') {
       steps {
-        setGitHubBuildStatus('docker/deploy', 'Deploy docker image', 'PENDING')
         container("${DEFAULT_CONTAINER}") {
           script {
             echo """
@@ -278,10 +257,8 @@ pipeline {
                   npm run ftest -- --nuxeoUrl=${nuxeoServerUrl}
                 """
               }
-              setGitHubBuildStatus('docker/deploy', 'Deploy docker image', 'SUCCESS')
             } catch (e) {
               archiveScreenshots()
-              setGitHubBuildStatus('docker/deploy', 'Deploy docker image', 'FAILURE')
               throw e
             } finally {
               try {
