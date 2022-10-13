@@ -24,12 +24,6 @@ WEB_UI_BRANCH = params.WEB_UI_BRANCH
 TEST_ENVIRONMENT = 'default'
 TEST_HELM_RELEASE = 'nuxeo'
 
-properties([
-  [$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/nuxeo/nuxeo-integration-tests'],
-  [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', daysToKeepStr: '60', numToKeepStr: '60', artifactNumToKeepStr: '5']],
-  disableConcurrentBuilds(),
-])
-
 def cloneRepo(name, branch, relativePath = name) {
   checkout([$class: 'GitSCM',
     branches: [[name: branch]],
