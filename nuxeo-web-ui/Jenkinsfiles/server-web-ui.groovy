@@ -37,7 +37,7 @@ def cloneRepo(name, branch, relativePath = name) {
       [$class: 'LocalBranch']
     ],
     submoduleCfg: [],
-    userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-git', url: 'https://github.com/nuxeo/' + name]]
+    userRemoteConfigs: [[credentialsId: 'github-branch-source', url: 'https://github.com/nuxeo/' + name]]
   ])
 }
 
